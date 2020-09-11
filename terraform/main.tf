@@ -15,8 +15,6 @@ limitations under the License.
 */
 
 resource "google_container_cluster" "cluster" {
-  provider = "google-beta"
-
   name     = var.cluster_name
   project  = var.project
   location = var.region
@@ -35,12 +33,6 @@ resource "google_container_cluster" "cluster" {
 
   // Configure various addons
   addons_config {
-    // Disable the Kubernetes dashboard, which is often an attack vector. The
-    // cluster can still be managed via the GKE UI.
-    kubernetes_dashboard {
-      disabled = true
-    }
-
     // Enable network policy (Calico)
     network_policy_config {
       disabled = false
@@ -72,7 +64,6 @@ resource "google_container_cluster" "cluster" {
 
   // Allocate IPs in our subnetwork
   ip_allocation_policy {
-    use_ip_aliases                = true
     cluster_secondary_range_name  = google_compute_subnetwork.subnetwork.secondary_ip_range.0.range_name
     services_secondary_range_name = google_compute_subnetwork.subnetwork.secondary_ip_range.1.range_name
   }
@@ -99,10 +90,10 @@ resource "google_container_cluster" "cluster" {
   }
 
   depends_on = [
-    "google_project_service.service",
-    "google_project_iam_member.service-account",
-    "google_project_iam_member.service-account-custom",
-    "google_compute_router_nat.nat",
+    google_project_service.service,
+    google_project_iam_member.service-account,
+    google_project_iam_member.service-account-custom,
+    google_compute_router_nat.nat,
   ]
 
 }
@@ -112,7 +103,7 @@ resource "google_container_cluster" "cluster" {
 // will be 3 nodes in size and use a non-default service-account with minimal
 // Oauth scope permissions.
 resource "google_container_node_pool" "private-np-1" {
-  provider = "google-beta"
+  provider = google-beta
 
   name       = "private-np-1"
   location   = var.region
@@ -162,6 +153,6 @@ resource "google_container_node_pool" "private-np-1" {
   }
 
   depends_on = [
-    "google_container_cluster.cluster",
+    google_container_cluster.cluster,
   ]
 }

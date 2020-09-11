@@ -17,53 +17,58 @@ limitations under the License.
 // Required values to be set in terraform.tfvars
 variable "project" {
   description = "The project in which to hold the components"
-  type        = "string"
+  type        = string
 }
 
 variable "region" {
   description = "The region in which to create the VPC network"
-  type        = "string"
+  type        = string
 }
 
 variable "zone" {
   description = "The zone in which to create the Kubernetes cluster. Must match the region"
-  type        = "string"
+  type        = string
 }
 
 
 // Optional values that can be overridden or appended to if desired.
 variable "cluster_name" {
   description = "The name to give the new Kubernetes cluster."
-  type        = "string"
+  type        = string
   default     = "private-cluster"
 }
 
 variable "bastion_tags" {
   description = "A list of tags applied to your bastion instance."
-  type        = "list"
+  type        = list
   default     = ["bastion"]
 }
 
 variable "k8s_namespace" {
   description = "The namespace to use for the deployment and workload identity binding"
-  type        = "string"
+  type        = string
   default     = "default"
 }
 
 variable "k8s_sa_name" {
   description = "The k8s service account name to use for the deployment and workload identity binding"
-  type        = "string"
+  type        = string
   default     = "postgres"
 }
 
 variable "db_username" {
   description = "The name for the DB connection"
-  type        = "string"
+  type        = string
   default     = "postgres"
 }
 
+variable "db_password" {
+  description = "The password for the DB connection"
+  type        = string
+}
+
 variable "service_account_iam_roles" {
-  type = "list"
+  type = list
 
   default = [
     "roles/logging.logWriter",
@@ -77,7 +82,7 @@ variable "service_account_iam_roles" {
 }
 
 variable "service_account_custom_iam_roles" {
-  type = "list"
+  type = list
   default = []
 
   description = <<-EOF
@@ -87,7 +92,7 @@ variable "service_account_custom_iam_roles" {
 }
 
 variable "project_services" {
-  type = "list"
+  type = list
 
   default = [
     "cloudresourcemanager.googleapis.com",

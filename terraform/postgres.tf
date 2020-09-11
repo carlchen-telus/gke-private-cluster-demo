@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 resource "google_compute_global_address" "private_ip_address" {
-  provider = "google-beta"
+  provider = google-beta
 
   name          = format("%s-priv-ip", var.cluster_name)
   purpose       = "VPC_PEERING"
@@ -25,7 +25,7 @@ resource "google_compute_global_address" "private_ip_address" {
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
-  provider = "google-beta"
+  provider = google-beta
 
   network                 = google_compute_network.network.self_link
   service                 = "servicenetworking.googleapis.com"
@@ -43,7 +43,7 @@ data "google_iam_policy" "access_postgres" {
     role = "roles/iam.workloadIdentityUser"
 
     members = [
-      format("serviceAccount:%s.svc.id.goog[%s/%s]", var.project, var.k8s_namespace, var.k8s_sa_name)
+      "serviceAccount:${var.project}.svc.id.goog[${var.k8s_namespace}/${var.k8s_sa_name}]" 
     ]
   }
 }
@@ -71,11 +71,11 @@ resource "random_id" "db_name_suffix" {
 resource "google_sql_database_instance" "default" {
   project          = var.project
   name             = format("%s-pg-%s", var.cluster_name, random_id.db_name_suffix.hex)
-  database_version = "POSTGRES_9_6"
+  database_version = "POSTGRES_11"
   region           = var.region
 
   depends_on = [
-    "google_service_networking_connection.private_vpc_connection"
+    google_service_networking_connection.private_vpc_connection
   ]
 
   settings {
@@ -84,13 +84,13 @@ resource "google_sql_database_instance" "default" {
     availability_type = "ZONAL"
 
     ip_configuration {
-      ipv4_enabled    = "false"
+      ipv4_enabled    = false
       private_network = google_compute_network.network.self_link
       // TODO Pull exact pod subnet
-      authorized_networks {
-        name  = "GKE Pod IPs"
-        value = "10.0.0.0/8"
-      }
+      //authorized_networks {
+       // name  = "GKE Pod IPs"
+       // value = "10.0.0.0/8"
+      //}
     }
 
     disk_autoresize = false
@@ -115,7 +115,7 @@ resource "google_sql_database" "default" {
   project    = var.project
   instance   = google_sql_database_instance.default.name
   collation  = "en_US.UTF8"
-  depends_on = ["google_sql_database_instance.default"]
+  depends_on = [google_sql_database_instance.default]
 }
 
 resource "random_id" "user-password" {
@@ -124,13 +124,13 @@ resource "random_id" "user-password" {
   }
 
   byte_length = 8
-  depends_on  = ["google_sql_database_instance.default"]
+  depends_on  = [google_sql_database_instance.default]
 }
 
 resource "google_sql_user" "default" {
   name       = var.db_username
   project    = var.project
   instance   = google_sql_database_instance.default.name
-  password   = random_id.user-password.hex
-  depends_on = ["google_sql_database_instance.default"]
+  password   = var.db_password
+  depends_on = [google_sql_database_instance.default]
 }

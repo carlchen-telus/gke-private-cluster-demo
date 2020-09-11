@@ -56,7 +56,7 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 
   depends_on = [
-    "google_project_service.service",
+    google_project_service.service,
   ]
 }
 
@@ -87,7 +87,7 @@ resource "google_compute_address" "nat" {
   region  = var.region
 
   depends_on = [
-    "google_project_service.service",
+    google_project_service.service,
   ]
 }
 
