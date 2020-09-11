@@ -1,4 +1,4 @@
-project = "supple-life-288710"
-region = "us-west1"
-zone = "us-west1-a"
-db_password="^telusPass0rd!"
+project = ${project-id}
+region = "${region}"
+zone = "${zone}"
+db_password="${db_password}"
